@@ -6,46 +6,48 @@ import os
 import plotly.express as px
 from pyproj import Proj, transform
 import numpy as np
+import os
+
+global pois
+global traffic
+
+conn_string = os.getenv("COCKROACHDB_CONN")
 
 def DatabaseInsertion():
     
-    # Define the projection of the data
-    # This can be obtained by providing the .prj file text to chatgpt and ask it to convert the longitudes and latitudes to the required projection
     in_proj = Proj(init="epsg:3857") 
     out_proj = Proj(init="epsg:4326")
     # Creating Connection with PostgreSQL Database
-    conn = psycopg2.connect(
-        host="localhost", # localhost
-        database="Dataset", # Database Name
-        user="postgres",# Username
-        password="admin",# Password of current user
-        port="5432" # Port Number - This is default port number for postgres
-        )
+    # conn = psycopg2.connect(
+    #     host="localhost",
+    #     database="Dataset",
+    #     user="postgres",
+    #     password="admin",
+    #     port="5432"
+    #     )
+    conn = psycopg2.connect(conn_string)
     cur = conn.cursor() # Cursor is used to interact with the database
     
     #Create a table in PostgreSQL database
     cur.execute('''
         CREATE TABLE IF NOT EXISTS POIs (
-            id SERIAL PRIMARY KEY, # Auto-incrementing id
-            type VARCHAR(100), # Type of POI (e.g. Education, FoodPoint, HealthPoint, etc.)
-            longitude FLOAT, # Longitude of the POI
-            latitude FLOAT # Latitude of the POI
+            id SERIAL PRIMARY KEY,
+            type VARCHAR(100),
+            longitude FLOAT,
+            latitude FLOAT
         );
     ''')
     
     cur.execute('''
         CREATE TABLE IF NOT EXISTS Traffic (
-            id SERIAL PRIMARY KEY, # Auto-incrementing id
-            level INTEGER, # Level(Intensity) of Traffic (e.g. 1, 2, 3, 4, 5)
-            longitude FLOAT, # Longitude of the Traffic Hotspot
-            latitude FLOAT # Latitude of the Traffic Hotspot
+            id SERIAL PRIMARY KEY,
+            level INTEGER,
+            longitude FLOAT,
+            latitude FLOAT
         );
     ''')
-    
-    conn.commit() # Commit the changes
-    # until here, we have created the tables in the database and now its time to read the data from the shapefiles and insert it into the tables
-
-    # These are the categories of POIs        
+    conn.commit()
+          
     POICategories  = ['Education', 'FoodPoint', 'HealthPoint', 'Pharmacy','Bank','Masjid','PoliceStation','Shop','SuperMarket']
     # insert data into the table
     directory = "TrafficData/"
@@ -99,13 +101,14 @@ def DatabaseInsertion():
 # Function to retrieve data from the database
 def DatabaseRetrieval():
     # Creating Connection with PostgreSQL Database
-    conn = psycopg2.connect(
-        host="localhost",
-        database="Dataset",
-        user="postgres",
-        password="admin",
-        port="5432"
-        )
+    # conn = psycopg2.connect(
+    #     host="localhost",
+    #     database="Dataset",
+    #     user="postgres",
+    #     password="admin",
+    #     port="5432"
+    #     )
+    conn = psycopg2.connect(conn_string)
     cur = conn.cursor() # Cursor is used to interact with the database
     
     # Select all the data from the tables
@@ -115,22 +118,18 @@ def DatabaseRetrieval():
     cur.execute('''Select * from Traffic;''')
     Traffic = cur.fetchall()
     
-    cur.close()
-    conn.close()
-    
     # Create DataFrames from the data with the columns names
     pois = pd.DataFrame(POIs, columns=['id', 'type', 'longitude', 'latitude'])
     traffic = pd.DataFrame(Traffic, columns=['id', 'level', 'longitude', 'latitude'])
     
+    cur.close()
+    conn.close()
     # Drop the id column, since it is just a serial number
     pois.drop(columns=['id'], inplace=True)
     traffic.drop(columns=['id'], inplace=True)
     
     # Return the DataFrames
     return pois, traffic
-
-
-pois, traffic = DatabaseRetrieval()
 
 def Show_Home_Page():
     st.markdown("## Welcome to URBAN INSIGHTS")
@@ -346,10 +345,9 @@ def main():
     show_relation_bw_hotspots_pois()
     show_about_me()
     
-    
-
 if __name__ == '__main__':
-    #DatabaseInsertion()
+    # DatabaseInsertion()
+    pois, traffic = DatabaseRetrieval()
     main()
     
     
