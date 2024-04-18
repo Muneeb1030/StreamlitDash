@@ -273,27 +273,35 @@ def show_relation_bw_hotspots_pois():
     st.markdown("## Relationship Between Traffic Hotspots and Points of Interest (POIs)")
     
     st.markdown("### Heatmap Regarding Hostsopts Having Most POIS in Near Point (0.01)")
-    radius = 0.01 
+    
+    radius = 0.01  # Adjust this value based on your data and requirements
+
     poi_counts = {}
 
-    for hotspot_index in traffic.index:
-        hotspot = traffic.loc[hotspot_index]
-        
+    for hotspot_index, hotspot in traffic.iterrows():
         distances = np.sqrt((pois['latitude'] - hotspot['latitude'])**2 + (pois['longitude'] - hotspot['longitude'])**2)
         
         near_pois = pois[distances <= radius]
-        poi_counts[hotspot_index] = len(near_pois)
+        poi_type_counts = near_pois['type'].value_counts()
+        
+        if not poi_type_counts.empty:
+            most_prevalent_poi_type = poi_type_counts.idxmax()
+            poi_counts[hotspot_index] = {'poi_count': len(near_pois), 'most_prevalent_poi_type': most_prevalent_poi_type}
+        else:
+            poi_counts[hotspot_index] = {'poi_count': 0, 'most_prevalent_poi_type': None}
 
-    counts_df = pd.DataFrame(list(poi_counts.items()), columns=['hotspot_index', 'poi_count'])
+    counts_df = pd.DataFrame.from_dict(poi_counts, orient='index').reset_index()
+    counts_df = counts_df.rename(columns={'index': 'hotspot_index'})
 
     hotspots_with_counts = traffic.merge(counts_df, left_index=True, right_on='hotspot_index', how='left')
 
+    # Plot the scatter map with hover information
     fig = px.scatter_mapbox(hotspots_with_counts, lat='latitude', lon='longitude',
-                            size='poi_count', color='poi_count',
-                            color_continuous_scale="Jet",
-                            size_max=30, zoom=10, mapbox_style="open-street-map", height=650)
+                            size='poi_count', color='poi_count', hover_name='most_prevalent_poi_type',
+                            color_continuous_scale="Jet", size_max=30, zoom=10, 
+                            mapbox_style="open-street-map", height=650)
+    st.plotly_chart(fig, use_container_width=True)
 
-    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     
     st.subheader("Dual-layer Map: Traffic Hotspots and Heatmap of POIs")
     fig = px.scatter_mapbox(traffic, lat="latitude", lon="longitude",color="level",size="level",
@@ -340,5 +348,6 @@ if __name__ == '__main__':
     # DatabaseInsertion()
     pois, traffic = DatabaseRetrieval()
     main()
+    
     
 
