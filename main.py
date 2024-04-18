@@ -176,13 +176,6 @@ def show_hotspots():
     st.markdown("## Traffic Hotspots")
     st.info("A traffic hotspot is a location on a road network that experiences frequent and significant congestion. These areas are known for delays and slowdowns in traffic flow.")
      
-    #First we will look at the data itself, we have a level column having int data type, and long and lat columns.
-    #We will look into the distribution of each level in data set, giving us the understanding of data whether it is some value is dominating or not.
-    
-    #- we can use bar chart or pie/donut(it looks cool) chart to show distribution of each level.
-    #- One is enough, but if you want to show both, you can show both.
-    
-    
     col1,col2 = st.columns([0.6,0.6])
     
     with col1:
@@ -191,12 +184,11 @@ def show_hotspots():
         counts = traffic['level'].value_counts().reset_index()
         counts.columns = ['level', 'count']
         fig = px.bar(counts, x='level', y='count', color='level',color_continuous_scale="Jet", labels={'level': 'Traffic Level', 'count': 'Count'}, title='Distribution of Traffic Levels')
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, config={'displayModeBar': False})
         # now we will do a bit of customization to chart. like having different color for each level
         
     with col2:
         st.markdown("### Donut Chart")
-        # here we will be using plotly to draw donut chart
         piechart = px.pie(traffic, names='level', hole=0.3, title='Distribution of Traffic Levels')
         st.plotly_chart(piechart, config={'displayModeBar': False})
         
@@ -235,7 +227,7 @@ def show_pois():
         counts = pois['type'].value_counts().reset_index()
         counts.columns = ['type', 'count']
         fig = px.bar(counts, x='type', y='count', color='type',color_continuous_scale="Jet", labels={'Type': 'POI Name', 'count': 'Count'}, title='Distribution of POIs')
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, config={'displayModeBar': False})
         # now we will do a bit of customization to chart. like having different color for each level
         
     with col2:
@@ -263,7 +255,6 @@ def show_pois():
     else:
         st.map(filtered_data)
         
-    # As it is clear from the visualization, the scatter plot is not a good presentation, so we will be using heat map to show the distribution of POIs
 
     if category == "All":
         # Count the occurrences of each place
@@ -282,7 +273,7 @@ def show_relation_bw_hotspots_pois():
     st.markdown("## Relationship Between Traffic Hotspots and Points of Interest (POIs)")
     
     st.markdown("### Heatmap Regarding Hostsopts Having Most POIS in Near Point (0.01)")
-    radius = 0.01  # Adjust this value based on your data and requirements
+    radius = 0.01 
     poi_counts = {}
 
     for hotspot_index in traffic.index:
@@ -302,7 +293,7 @@ def show_relation_bw_hotspots_pois():
                             color_continuous_scale="Jet",
                             size_max=30, zoom=10, mapbox_style="open-street-map", height=650)
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
     
     st.subheader("Dual-layer Map: Traffic Hotspots and Heatmap of POIs")
     fig = px.scatter_mapbox(traffic, lat="latitude", lon="longitude",color="level",size="level",
@@ -315,7 +306,7 @@ def show_relation_bw_hotspots_pois():
                                 mapbox_style="open-street-map", zoom=10)
 
     fig.add_trace(heatmap.data[0])
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True,  config={'displayModeBar': False})
     
 def show_about_me():
     st.markdown(""" ## About Me
@@ -324,7 +315,7 @@ def show_about_me():
 
     ### Explore My Writing
 
-    I regularly share insights and detailed write-ups about my projects and learning experiences on Medium. Check out my [Medium blog](https://medium.com/@m.muneeb.ur.rehman.2000) to get a deeper understanding of my work and thoughts in the realm of tech.
+    I regularly share insights and detailed write-ups about my projects and learning experiences on Medium. Check out my [Medium blog](https://medium.com/@m.muneeb.ur.rehman.2000) to get a deeper understanding of my work and thoughts in the realm of tech. 
 
     ### Connect With Me
 
@@ -350,61 +341,4 @@ if __name__ == '__main__':
     pois, traffic = DatabaseRetrieval()
     main()
     
-    
-# '''
-# # st.title("Home Page")
-# # st.header("Welcome to the Home Page")
-# st.title("Home Page") # Title of the page. it is like # in markdown
-# st.header("Welcome to the Home Page") # Header of the page or can be used to mark setions of the page. it is like ## in markdown
-# st.subheader("This is a subheader") # Subheader of the page. it is like ### in markdown
-
-# st.markdown("***This*** *is* a **markdown** text") # Markdown text. it allows you to put text in markdown format and it will be rendered as markdown.
-# '''
-# # * means italic
-# # ** means bold
-# # *** means bold and italic
-# '''
-
-# st.write("This is a **write** function") # Write function is used to write text on the page. It is like print function in python.
-
-# st.info("This is an info message") # Info message. It is used to display an info message on the page.
-# st.success("This is a success message") # Success message. It is used to display a success message on the page.
-# st.warning("This is a warning message") # Warning message. It is used to display a warning message on the page.
-# st.error("This is an error message") # Error message. It is used to display an error message on the page.
-# st.bar_chart(pois['type'].value_counts(),color='#ff0000') # Bar chart. It is used to display a bar chart on the page.
-# st.map(pois) # Map. It is used to display a map on the page.
-# st.divider() # Divider. It is used to put a divider on the page.
-# val = st.checkbox("This is a checkbox") # Checkbox. It is used to display a checkbox on the page.
-
-# if val:
-#     st.write("Checkbox is checked")
-    
-# value  = st.slider("This is a slider", min_value=0, max_value=100) # Slider. It is used to display a slider on the page.
-# st.write(f"Slider value is {value}")
-# st.plotly_chart(px.bar(pois['type'].value_counts())) # Plotly chart. It is used to display a plotly chart on the page.
-# st.balloons() # Balloons. It is used to display balloons on the page.
-# # it is the most important function in the entire streamlit library
-
-# st.write("This is a table") # Table. It is used to display a table on the page.
-# st.table(pois[:10]) # Table. It is used to display a table on the page.
-
-# st.sidebar.title("This is a sidebar") # Sidebar. It is used to display a sidebar on the page.
-# st.sidebar.file_uploader("This is a file uploader") # File uploader. It is used to display a file uploader on the page.
-# opt = st.sidebar.selectbox("This is a selectbox", ["Option 1", "Option 2", "Option 3"]) # Selectbox. It is used to display a selectbox on the page.
-# st.sidebar.write(f"Selected option is {opt}")
-
-# # These are mostly the streamlit function we will be using in our project. but feel free to explore more functions in the streamlit documentation.
-# # https://docs.streamlit.io/library
-
-# # i have missed a point regarding layout of the page. you can use columns and rows to layout the page as you want.
-# # https://docs.streamlit.io/library/api-reference/layout/st.beta_columns
-
-# col1, col2  = st.columns([0.5,2]) # Create 2 columns
-
-# with col1:
-#     st.write("This is column 1")
-
-# with col2:
-#     st.write("This is column 2")
-# '''
 

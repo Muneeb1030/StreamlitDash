@@ -72,3 +72,53 @@ Here I want to mention that i have already submitted the assignment and now i am
 - Before Discussing the Dashboard lets discuss a little bit of syntax provided by streamlit
     - Always make sure to check ```Always Rerun``` Option.
     - I will demonstrate some of the syntax of streamlit, which is ostly used in this dashbaord.
+
+### Streamlit Tutorial
+```
+# st.title("Home Page")
+# st.header("Welcome to the Home Page")
+st.title("Home Page")
+st.header("Welcome to the Home Page")
+st.subheader("This is a subheader")
+
+st.markdown("***This*** *is* a **markdown** text")
+'''
+# * means italic
+# ** means bold
+# *** means bold and italic
+'''
+
+st.write("This is a **write** function") 
+
+st.info("This is an info message")
+st.success("This is a success message") 
+st.warning("This is a warning message") 
+st.error("This is an error message") 
+st.bar_chart(pois['type'].value_counts(),color='#ff0000') 
+st.divider()
+val = st.checkbox("This is a checkbox") 
+
+if val:
+    st.write("Checkbox is checked")
+    
+value  = st.slider("This is a slider", min_value=0, max_value=100) 
+st.write(f"Slider value is {value}")
+st.plotly_chart(px.bar(pois['type'].value_counts()))
+st.balloons()
+
+st.write("This is a table") 
+st.table(pois[:10])
+
+st.sidebar.title("This is a sidebar")
+st.sidebar.file_uploader("This is a file uploader")
+opt = st.sidebar.selectbox("This is a selectbox", ["Option 1", "Option 2", "Option 3"]) 
+st.sidebar.write(f"Selected option is {opt}")
+
+col1, col2  = st.columns([0.5,2]) # Create 2 columns
+
+with col1:
+    st.write("This is column 1")
+
+with col2:
+    st.write("This is column 2")
+```
